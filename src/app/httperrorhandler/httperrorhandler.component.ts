@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { retry, catchError, delay } from 'rxjs/operators';
 import { CommonModule, JsonPipe } from '@angular/common';
 
@@ -16,21 +16,25 @@ errorMesage:string|null =null;
 http=inject(HttpClient);
 private apiUrl = 'https://jsonplaceholder.typicode.com/todos/1'; // Example API
 
-
    // A more basic retry example without custom logic
    fetchdata() {
+     this.data=null;
+     this.errorMesage=null;
     return this.http.get(this.apiUrl).pipe(
       retry(3), // retry 3 times by default
       catchError(this.handleError)
     ).subscribe({next:(response:any)=>{
       this.data=response;
-    },error:(erro:any)=>{
-       console.log('unhandled error',erro);}
+    },error:(error:any)=> {
+      this.errorMesage="Backend error : "+error
+    console.error('Error:', error)
+    }
     });
   }
 
 private handleError(error: HttpErrorResponse) {
   console.log(error.status);
+ // this.errorMesage="Backedn returned code "+error.status
   if (error.error instanceof ErrorEvent) {
     // A client-side or network error occurred. Handle it accordingly.
     console.error('An error occurred:', error.error.message);
@@ -40,6 +44,7 @@ private handleError(error: HttpErrorResponse) {
     console.error(
       `Backend returned code ${error.status}, ` +
       `body was: ${error.error}`);
+     
   }
   // return an observable with a user-facing error message
   return throwError(() => 'Something bad happened; please try again later.');

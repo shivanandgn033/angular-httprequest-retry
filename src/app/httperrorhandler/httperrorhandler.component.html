@@ -2,8 +2,9 @@
     <h1>Error handling example</h1>
     <button (click)=fetchdata()>Fetch data</button>
 @if(data){
-
-
 <div style="color: green;" >{{data | json}}</div>
+}
+@if(errorMesage){
+<div style="color: red;">{{errorMesage}}</div>
 }
 </div>
